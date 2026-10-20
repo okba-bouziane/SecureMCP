@@ -17,6 +17,7 @@ AI agents are getting direct access to business data through MCP tools. SecureMC
 - 🚫 **Clear `Forbidden` errors.** A disallowed call returns an MCP tool error the agent can read, e.g.
   `Forbidden: user 'viewer' (roles: viewer) is not allowed to call 'update_order_status' — requires role: admin.`
 - 📜 **Audit trail.** Every tool call is stored in `audit_log` (user, tool, args, allowed/denied, reason, timestamp) and is readable by admins through a tool.
+- 🖥️ **Demo console.** A small web page at `/` lets you sign in as `viewer` or `admin`, inspect the decoded JWT, run every tool, and watch the server allow or refuse. A **guided demo** button runs the full test flow in one click.
 - 🔁 **Stateless.** Each HTTP request gets a fresh MCP server instance, so every request is re-authenticated — no session can outlive its token.
 
 ### Tools
@@ -80,6 +81,8 @@ SecureMCP/
 │   ├── tools.ts          # Tool definitions, role policy, authorization + audit wrapper
 │   ├── db.ts             # SQLite schema, seed data and queries
 │   └── config.ts         # Environment configuration
+├── public/
+│   └── index.html        # Demo console (single static page, no build step)
 ├── tests/                # Vitest suites (local JWKS, no Keycloak needed)
 ├── keycloak/
 │   └── realm-export.json # Auto-imported realm: client, roles, test users
@@ -123,7 +126,13 @@ The `securemcp` realm is imported automatically with:
 
 > Port 3000 already in use? Run `MCP_PORT=3100 docker compose up --build`.
 
-### 2. Get a token
+### 2. Open the console
+
+Browse to **http://localhost:3000** (or your `MCP_PORT`), pick a user, run tools, or press **▶ Run guided demo**.
+
+Prefer the command line? Continue with the steps below.
+
+### 3. Get a token
 
 ```bash
 TOKEN=$(./scripts/get-token.sh viewer)   # or: ./scripts/get-token.sh admin
@@ -131,7 +140,7 @@ TOKEN=$(./scripts/get-token.sh viewer)   # or: ./scripts/get-token.sh admin
 
 Tokens are valid for 15 minutes.
 
-### 3. Call a tool
+### 4. Call a tool
 
 ```bash
 curl -s http://localhost:3000/mcp \
@@ -203,6 +212,7 @@ Restart Claude Desktop, then ask something like *"List the pending orders and ma
 
 | | |
 | --- | --- |
+| **Demo console — guided demo** | ![Console](docs/screenshots/console.png) |
 | **MCP Inspector — tools list (admin)** | ![Inspector tools list](docs/screenshots/inspector-tools.png) |
 | **Viewer blocked from `update_order_status`** | ![Forbidden error](docs/screenshots/forbidden.png) |
 | **401 without a token** | ![Unauthorized](docs/screenshots/unauthorized.png) |
