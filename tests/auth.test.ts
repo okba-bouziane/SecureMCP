@@ -76,3 +76,19 @@ describe("authentication", () => {
     expect(res.status).toBe(401);
   });
 });
+
+describe("demo console", () => {
+  it("serves the page and public config without a token", async () => {
+    const base = new URL("/", ctx.url);
+    const page = await fetch(base);
+    expect(page.status).toBe(200);
+    expect(await page.text()).toContain("SecureMCP Console");
+
+    const cfg = await (await fetch(new URL("/config.json", base))).json();
+    expect(cfg).toEqual({ issuer: "http://keycloak.test/realms/securemcp", clientId: "mcp-server" });
+  });
+
+  it("still protects /mcp", async () => {
+    expect((await rawPost(ctx.url)).status).toBe(401);
+  });
+});

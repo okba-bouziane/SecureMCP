@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import express, { type Express, type Request, type Response } from "express";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { requireKeycloakAuth, type AuthOptions } from "./auth.js";
@@ -15,6 +16,14 @@ export function createApp(db: Db, auth: AuthOptions): Express {
   app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
   });
+
+  // Public bits the demo console needs to talk to Keycloak. Nothing secret here.
+  app.get("/config.json", (_req, res) => {
+    res.json({ issuer: auth.issuer, clientId: auth.audience });
+  });
+
+  // Demo console (static, unauthenticated). Only /mcp is protected.
+  app.use(express.static(fileURLToPath(new URL("../public", import.meta.url))));
 
   app.post("/mcp", requireKeycloakAuth(auth), async (req: Request, res: Response) => {
     const server = createMcpServer(db);
