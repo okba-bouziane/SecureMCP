@@ -217,16 +217,6 @@ Restart Claude Desktop, then ask something like *"List the pending orders and ma
 | **Admin updating an order** | ![Admin update](docs/screenshots/admin-update.png) |
 | **`get_audit_log` output** | ![Audit log](docs/screenshots/audit-log.png) |
 
---- | --- |
-| **Demo console — guided demo** | ![Console](docs/screenshots/console.png) |
-| **MCP Inspector — tools list (admin)** | ![Inspector tools list](docs/screenshots/inspector-tools.png) |
-| **Viewer blocked from `update_order_status`** | ![Forbidden error](docs/screenshots/forbidden.png) |
-| **401 without a token** | ![Unauthorized](docs/screenshots/unauthorized.png) |
-| **`get_audit_log` output** | ![Audit log](docs/screenshots/audit-log.png) |
-| **Claude Desktop using SecureMCP** | ![Claude Desktop](docs/screenshots/claude-desktop.png) |
-
-> _Placeholders — add images to `docs/screenshots/`._
-
 ---
 
 ## Tests
