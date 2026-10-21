@@ -212,6 +212,12 @@ Restart Claude Desktop, then ask something like *"List the pending orders and ma
 
 | | |
 | --- | --- |
+| **Demo console — guided demo (7/7 checks)** | ![Console](docs/screenshots/console.png) |
+| **Viewer blocked from `update_order_status`** | ![Forbidden error](docs/screenshots/forbidden.png) |
+| **Admin updating an order** | ![Admin update](docs/screenshots/admin-update.png) |
+| **`get_audit_log` output** | ![Audit log](docs/screenshots/audit-log.png) |
+
+--- | --- |
 | **Demo console — guided demo** | ![Console](docs/screenshots/console.png) |
 | **MCP Inspector — tools list (admin)** | ![Inspector tools list](docs/screenshots/inspector-tools.png) |
 | **Viewer blocked from `update_order_status`** | ![Forbidden error](docs/screenshots/forbidden.png) |
