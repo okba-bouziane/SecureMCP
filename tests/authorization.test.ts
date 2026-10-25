@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { connectClient, startTestServer, textOf, type TestContext } from "./helpers.js";
-import { readAudit } from "../src/db.js";
+import { readAudit } from "../src/audit.js";
 
 let ctx: TestContext;
 let viewer: Client;

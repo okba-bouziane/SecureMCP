@@ -78,9 +78,14 @@ SecureMCP/
 │   ├── index.ts          # Entry point: config → DB → HTTP server
 │   ├── app.ts            # Express app, /mcp endpoint (stateless Streamable HTTP)
 │   ├── auth.ts           # Bearer-token middleware, JWT verification with jose
-│   ├── tools.ts          # Tool definitions, role policy, authorization + audit wrapper
-│   ├── db.ts             # SQLite schema, seed data and queries
-│   └── config.ts         # Environment configuration
+│   ├── policy.ts         # Role policy: which roles may call which tool
+│   ├── tools.ts          # Tool definitions, authorization + audit wrapper
+│   ├── db.ts             # SQLite connection, schema, first-run seeding
+│   ├── orders.ts         # Order types and queries
+│   ├── audit.ts          # Audit log types, write and read
+│   ├── seed.ts           # Demo orders
+│   ├── jsonrpc.ts        # JSON-RPC error body helper
+│   └── config.ts         # Environment configuration (only place that reads env)
 ├── public/
 │   └── index.html        # Demo console (single static page, no build step)
 ├── tests/                # Vitest suites (local JWKS, no Keycloak needed)

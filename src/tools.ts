@@ -2,57 +2,38 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
 import { z } from "zod";
-import { principalOf, type Role } from "./auth.js";
-import {
-  ORDER_STATUSES,
-  getOrder,
-  listOrders,
-  readAudit,
-  updateOrderStatus,
-  writeAudit,
-  type Db,
-} from "./db.js";
+import { writeAudit, readAudit } from "./audit.js";
+import { principalOf } from "./auth.js";
+import type { Db } from "./db.js";
+import { ORDER_STATUSES, getOrder, listOrders, updateOrderStatus } from "./orders.js";
+import { isAllowed, requirementText, type ToolName } from "./policy.js";
 
-/** Role-based access policy: which roles may call which tool. */
-export const TOOL_POLICY = {
-  list_orders: ["viewer", "admin"],
-  get_order: ["viewer", "admin"],
-  update_order_status: ["admin"],
-  get_audit_log: ["admin"],
-} as const satisfies Record<string, readonly Role[]>;
-
-type ToolName = keyof typeof TOOL_POLICY;
-
-function json(data: unknown): CallToolResult {
+function jsonResult(data: unknown): CallToolResult {
   return { content: [{ type: "text", text: JSON.stringify(data, null, 2) }] };
 }
 
-function error(message: string): CallToolResult {
+function errorResult(message: string): CallToolResult {
   return { isError: true, content: [{ type: "text", text: message }] };
 }
 
 /**
  * Wraps a tool handler with authorization and audit logging.
- * Every call — allowed or denied — produces exactly one audit_log row.
+ * Every call, allowed or denied, produces exactly one audit_log row.
  */
-function guarded<A>(
+function guarded<Args>(
   db: Db,
   tool: ToolName,
-  handler: (args: A) => CallToolResult,
-): (args: A, extra: { authInfo?: AuthInfo }) => CallToolResult {
-  const allowed: readonly Role[] = TOOL_POLICY[tool];
-
+  handler: (args: Args) => CallToolResult,
+): (args: Args, extra: { authInfo?: AuthInfo }) => CallToolResult {
   return (args, extra) => {
     const principal = principalOf(extra.authInfo);
     const username = principal?.username ?? "anonymous";
 
-    if (!principal || !principal.roles.some((r) => allowed.includes(r))) {
-      const reason = `requires role: ${allowed.join(" or ")}`;
+    if (!principal || !isAllowed(tool, principal.roles)) {
+      const reason = requirementText(tool);
       writeAudit(db, { username, tool, args, decision: "denied", reason });
-      return error(
-        `Forbidden: user '${username}' (roles: ${principal?.roles.join(", ") || "none"}) ` +
-          `is not allowed to call '${tool}' — ${reason}.`,
-      );
+      const roles = principal?.roles.join(", ") || "none";
+      return errorResult(`Forbidden: user '${username}' (roles: ${roles}) is not allowed to call '${tool}' — ${reason}.`);
     }
 
     writeAudit(db, { username, tool, args, decision: "allowed" });
@@ -71,7 +52,7 @@ export function createMcpServer(db: Db): McpServer {
       inputSchema: { status: z.enum(ORDER_STATUSES).optional().describe("Filter by order status") },
       annotations: { readOnlyHint: true },
     },
-    guarded(db, "list_orders", ({ status }) => json(listOrders(db, status))),
+    guarded(db, "list_orders", ({ status }) => jsonResult(listOrders(db, status))),
   );
 
   server.registerTool(
@@ -84,7 +65,7 @@ export function createMcpServer(db: Db): McpServer {
     },
     guarded(db, "get_order", ({ id }) => {
       const order = getOrder(db, id);
-      return order ? json(order) : error(`Order ${id} not found.`);
+      return order ? jsonResult(order) : errorResult(`Order ${id} not found.`);
     }),
   );
 
@@ -101,7 +82,7 @@ export function createMcpServer(db: Db): McpServer {
     },
     guarded(db, "update_order_status", ({ id, status }) => {
       const order = updateOrderStatus(db, id, status);
-      return order ? json(order) : error(`Order ${id} not found.`);
+      return order ? jsonResult(order) : errorResult(`Order ${id} not found.`);
     }),
   );
 
@@ -116,7 +97,7 @@ export function createMcpServer(db: Db): McpServer {
       annotations: { readOnlyHint: true },
     },
     guarded(db, "get_audit_log", ({ limit }) =>
-      json(readAudit(db, limit).map((e) => ({ ...e, args: JSON.parse(e.args) }))),
+      jsonResult(readAudit(db, limit).map((entry) => ({ ...entry, args: JSON.parse(entry.args) }))),
     ),
   );
 

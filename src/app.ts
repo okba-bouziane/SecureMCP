@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import express, { type Express, type Request, type Response } from "express";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { requireKeycloakAuth, type AuthOptions } from "./auth.js";
+import { jsonRpcError } from "./jsonrpc.js";
 import { createMcpServer } from "./tools.js";
 import type { Db } from "./db.js";
 
@@ -39,21 +40,17 @@ export function createApp(db: Db, auth: AuthOptions): Express {
     } catch (err) {
       console.error("MCP request failed:", err);
       if (!res.headersSent) {
-        res.status(500).json({ jsonrpc: "2.0", error: { code: -32603, message: "Internal error" }, id: null });
+        res.status(500).json(jsonRpcError(-32603, "Internal error"));
       }
     }
   });
 
   // Stateless server: no SSE stream to resume and no session to delete.
-  const notAllowed = (_req: Request, res: Response) => {
-    res.status(405).set("Allow", "POST").json({
-      jsonrpc: "2.0",
-      error: { code: -32000, message: "Method not allowed" },
-      id: null,
-    });
+  const methodNotAllowed = (_req: Request, res: Response) => {
+    res.status(405).set("Allow", "POST").json(jsonRpcError(-32000, "Method not allowed"));
   };
-  app.get("/mcp", notAllowed);
-  app.delete("/mcp", notAllowed);
+  app.get("/mcp", methodNotAllowed);
+  app.delete("/mcp", methodNotAllowed);
 
   return app;
 }

@@ -12,12 +12,18 @@
       --panel-2: #181e31;
       --line: #252c44;
       --text: #e6e9f5;
-      --muted: #8a93b2;
+      --muted: #9aa3c2;
       --accent: #7c83ff;
       --accent-2: #5b62f0;
       --ok: #34d399;
       --warn: #fbbf24;
       --bad: #f87171;
+      --btn-from: #5b62f0;
+      --btn-to: #4a50d8;
+      --blue: #60a5fa;
+      --pink: #f472b6;
+      --violet: #a78bfa;
+      --sky: #38bdf8;
       --radius: 14px;
       --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
       color-scheme: dark;
@@ -28,12 +34,18 @@
       --panel-2: #f0f2fa;
       --line: #dfe3f1;
       --text: #161a2e;
-      --muted: #5f6885;
+      --muted: #566079;
       --accent: #4f56e6;
       --accent-2: #3f46cf;
       --ok: #059669;
       --warn: #b45309;
       --bad: #dc2626;
+      --btn-from: #4f56e6;
+      --btn-to: #3f46cf;
+      --blue: #1d4ed8;
+      --pink: #be185d;
+      --violet: #6d28d9;
+      --sky: #0369a1;
       color-scheme: light;
     }
     * { box-sizing: border-box; }
@@ -52,12 +64,12 @@
     .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 60px; }
 
     header {
-      display: flex; align-items: center; gap: 14px;
+      display: flex; align-items: center; gap: 12px 14px; flex-wrap: wrap;
       padding: 22px 0 18px;
     }
     .logo {
       width: 38px; height: 38px; border-radius: 10px; flex: none;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
       display: grid; place-items: center;
       box-shadow: 0 6px 20px color-mix(in srgb, var(--accent) 40%, transparent);
     }
@@ -65,10 +77,12 @@
     h1 { font-size: 18px; margin: 0; letter-spacing: -0.01em; }
     .tag { color: var(--muted); font-size: 13px; }
     .spacer { flex: 1; }
+    header .spacer { min-width: 0; }
     .icon-btn {
       background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
       width: 36px; height: 36px; display: grid; place-items: center; color: var(--muted);
     }
+    .icon-btn { cursor: pointer; }
     .icon-btn:hover { color: var(--text); border-color: var(--accent); }
 
     .hero {
@@ -80,8 +94,19 @@
     .hero p { margin: 0; color: var(--muted); flex: 1 1 380px; }
     .hero p b { color: var(--text); font-weight: 600; }
 
-    .grid { display: grid; grid-template-columns: 420px 1fr; gap: 20px; align-items: start; }
-    @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+    .grid { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 20px; align-items: start; }
+    @media (max-width: 920px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+    @media (max-width: 520px) {
+      .wrap { padding: 0 16px 48px; }
+      .hero { padding: 16px; }
+      .hero .btn { width: 100%; }
+      .card > .body { padding: 14px; }
+      .tool { padding: 14px; }
+      dl { grid-template-columns: 72px minmax(0, 1fr); }
+      .tool .args label { flex: 1 1 100px; }
+      input, select { width: 100%; }
+      header .tag { display: none; }
+    }
     .col { display: grid; gap: 20px; min-width: 0; }
 
     .card {
@@ -105,8 +130,11 @@
       padding: 8px 14px; font-weight: 600; transition: .15s;
     }
     .btn:hover:not(:disabled) { border-color: var(--accent); }
-    .btn:disabled { opacity: .5; cursor: not-allowed; }
-    .btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: #fff; }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+    .btn.busy { cursor: progress; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .user:disabled { opacity: .6; cursor: progress; }
+    .btn.primary { background: linear-gradient(135deg, var(--btn-from), var(--btn-to)); border-color: transparent; color: #fff; }
     .btn.primary:hover:not(:disabled) { filter: brightness(1.1); }
     .btn.sm { padding: 5px 10px; font-size: 12px; }
     .btn.ghost { background: transparent; }
@@ -117,7 +145,7 @@
       text-align: left; padding: 12px 14px; border-radius: 12px;
       background: var(--panel-2); border: 1px solid var(--line); transition: .15s;
     }
-    .user:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .user:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); }
     .user.active { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
     .user b { display: block; font-size: 15px; }
     .user span { color: var(--muted); font-size: 12px; }
@@ -127,8 +155,8 @@
       padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
       background: var(--panel-2);
     }
-    .badge.viewer { color: #60a5fa; border-color: color-mix(in srgb, #60a5fa 40%, transparent); }
-    .badge.admin { color: #f472b6; border-color: color-mix(in srgb, #f472b6 40%, transparent); }
+    .badge.viewer { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 40%, transparent); }
+    .badge.admin { color: var(--pink); border-color: color-mix(in srgb, var(--pink) 40%, transparent); }
     .badge.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
     .badge.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
     .badge.bad { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, transparent); }
@@ -137,9 +165,9 @@
     .token.empty { color: var(--muted); text-align: center; }
     dl { margin: 0; display: grid; grid-template-columns: 82px 1fr; gap: 6px 10px; font-size: 13px; }
     dt { color: var(--muted); }
-    dd { margin: 0; word-break: break-all; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-    .jwt { margin-top: 12px; font-family: var(--mono); font-size: 11px; word-break: break-all; line-height: 1.6; }
-    .jwt .h { color: #f472b6; } .jwt .p { color: #a78bfa; } .jwt .s { color: #38bdf8; }
+    dd { margin: 0; min-width: 0; overflow-wrap: anywhere; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+    .jwt { margin-top: 12px; overflow-wrap: anywhere; font-family: var(--mono); font-size: 11px; word-break: break-all; line-height: 1.6; }
+    .jwt .h { color: var(--pink); } .jwt .p { color: var(--violet); } .jwt .s { color: var(--sky); }
 
     .tool { padding: 14px 18px; border-top: 1px solid var(--line); }
     .tool:first-child { border-top: 0; }
@@ -151,7 +179,7 @@
     label { display: grid; gap: 3px; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
     input, select {
       background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 8px;
-      padding: 7px 9px; font: 13px var(--mono); min-width: 0; width: 120px;
+      padding: 7px 9px; font: 13px var(--mono); min-width: 0; width: 120px; max-width: 100%;
     }
     input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
     .hint { font-size: 11.5px; color: var(--warn); margin-top: 8px; display: none; }
@@ -164,9 +192,10 @@
     }
     .pill.ok { color: var(--ok); } .pill.warn { color: var(--warn); } .pill.bad { color: var(--bad); }
     .result-empty { color: var(--muted); padding: 34px 10px; text-align: center; }
-    .req { font: 12.5px var(--mono); color: var(--muted); margin-bottom: 12px; word-break: break-all; }
-    pre { margin: 0; padding: 14px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; overflow: auto; max-height: 340px; font-size: 12.5px; }
-    .msg { margin: 12px 0 0; padding: 12px 14px; border-radius: 10px; border: 1px solid; font-size: 13.5px; }
+    .req { font: 12.5px var(--mono); color: var(--muted); margin-bottom: 12px; overflow-wrap: anywhere; }
+    .loading { color: var(--muted); padding: 34px 10px; text-align: center; animation: pulse 1s infinite; }
+    pre { margin: 0; padding: 14px; tab-size: 2; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; overflow: auto; max-height: 340px; font-size: 12.5px; }
+    .msg { overflow-wrap: anywhere; margin: 12px 0 0; padding: 12px 14px; border-radius: 10px; border: 1px solid; font-size: 13.5px; }
     .msg.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, transparent); background: color-mix(in srgb, var(--warn) 10%, transparent); }
     .msg.bad { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, transparent); background: color-mix(in srgb, var(--bad) 10%, transparent); }
     .tablewrap { overflow: auto; max-height: 360px; border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; }
@@ -176,7 +205,7 @@
     tr:last-child td { border-bottom: 0; }
     td.num { text-align: right; font-family: var(--mono); }
     .st { font-weight: 600; }
-    .st.delivered, .st.allowed { color: var(--ok); } .st.shipped, .st.paid { color: #60a5fa; }
+    .st.delivered, .st.allowed { color: var(--ok); } .st.shipped, .st.paid { color: var(--blue); }
     .st.pending { color: var(--warn); } .st.cancelled, .st.denied { color: var(--bad); }
 
     .checks { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
@@ -187,7 +216,10 @@
     .checks li.todo { color: var(--muted); }
     .checks small { display: block; color: var(--muted); font-size: 12px; }
     @keyframes pulse { 50% { opacity: .3; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 
+    .token .msg { margin-top: 12px; }
+    .token.expired .mono.exp { color: var(--bad); }
     footer { margin-top: 28px; text-align: center; color: var(--muted); font-size: 12.5px; }
     footer a { color: var(--accent); text-decoration: none; }
   </style>
@@ -203,7 +235,7 @@
       <div class="tag">Keycloak-authorized MCP tools</div>
     </div>
     <div class="spacer"></div>
-    <span class="badge" id="server-badge">checking…</span>
+    <span class="badge" id="server-badge" role="status">checking…</span>
     <button class="icon-btn" id="theme" title="Toggle theme" aria-label="Toggle theme">◐</button>
   </header>
 
@@ -218,14 +250,14 @@
         <div class="head"><span class="step">1</span><h2>Identity</h2></div>
         <div class="body">
           <div class="users">
-            <button class="user" data-user="viewer"><b>viewer</b><span>read-only role</span></button>
-            <button class="user" data-user="admin"><b>admin</b><span>full access</span></button>
+            <button class="user" data-user="viewer" aria-pressed="false"><b>viewer</b><span>read-only role</span></button>
+            <button class="user" data-user="admin" aria-pressed="false"><b>admin</b><span>full access</span></button>
           </div>
           <div class="row" style="margin-top:12px">
             <button class="btn sm" id="tamper" disabled>Tamper with token</button>
             <button class="btn sm ghost" id="signout" disabled>Sign out</button>
           </div>
-          <div class="token empty" id="token">Not signed in. Calls will be sent without a token.</div>
+          <div class="token empty" id="token" aria-live="polite">Not signed in. Calls will be sent without a token.</div>
         </div>
       </section>
 
@@ -238,12 +270,12 @@
     <div class="col">
       <section class="card">
         <div class="head"><span class="step">3</span><h2>Response</h2></div>
-        <div class="body" id="result"><div class="result-empty">Run a tool to see the server's answer.</div></div>
+        <div class="body" id="result" aria-live="polite"><div class="result-empty">Run a tool to see the server's answer.</div></div>
       </section>
 
       <section class="card" id="demo-card" hidden>
         <div class="head"><h2>Guided demo</h2><div class="spacer"></div><span class="badge" id="demo-summary"></span></div>
-        <div class="body"><ul class="checks" id="checks"></ul></div>
+        <div class="body"><ul class="checks" id="checks" aria-live="polite"></ul></div>
       </section>
     </div>
   </div>
@@ -282,9 +314,13 @@ $("#theme").onclick = () => {
 };
 
 /* ---------- auth ---------- */
-const decode = (jwt) => JSON.parse(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+const decode = (jwt) => {
+  const bytes = Uint8Array.from(atob(jwt.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+  return JSON.parse(new TextDecoder().decode(bytes));
+};
 
 async function fetchToken(username) {
+  if (!state.cfg) throw new Error("the server configuration could not be loaded");
   const res = await fetch(`${state.cfg.issuer}/protocol/openid-connect/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -302,15 +338,22 @@ function setToken(token) {
 }
 
 async function signIn(username) {
+  const buttons = document.querySelectorAll(".user");
+  buttons.forEach((b) => (b.disabled = true));
   try { setToken(await fetchToken(username)); }
-  catch (e) { showError(`Could not sign in: ${e.message}. Is Keycloak running on ${state.cfg.issuer}?`); }
+  catch (e) { showError(`Could not sign in: ${e.message}. Is Keycloak running${state.cfg ? ` on ${state.cfg.issuer}` : ""}?`); }
+  finally { buttons.forEach((b) => (b.disabled = false)); }
 }
 
 const currentRoles = () => (state.claims?.realm_access?.roles ?? []).filter((r) => r === "viewer" || r === "admin");
 
 function renderIdentity() {
   const box = $("#token");
-  document.querySelectorAll(".user").forEach((b) => b.classList.toggle("active", state.claims?.preferred_username === b.dataset.user));
+  document.querySelectorAll(".user").forEach((b) => {
+    const active = state.claims?.preferred_username === b.dataset.user;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-pressed", String(active));
+  });
   $("#tamper").disabled = $("#signout").disabled = !state.token;
   clearInterval(state.timer);
 
@@ -322,10 +365,11 @@ function renderIdentity() {
   const c = state.claims;
   const [h, p, s] = state.token.split(".");
   box.className = "token";
-  const exp = el("span", { className: "mono" });
+  const exp = el("span", { className: "mono exp" });
   const tick = () => {
     const left = Math.max(0, c.exp - Math.floor(Date.now() / 1000));
     exp.textContent = left ? `in ${Math.floor(left / 60)}m ${String(left % 60).padStart(2, "0")}s` : "expired";
+    box.classList.toggle("expired", !left);
   };
   tick(); state.timer = setInterval(tick, 1000);
   box.replaceChildren(
@@ -346,6 +390,7 @@ $("#tamper").onclick = () => {
   const t = state.token;
   state.token = t.slice(0, -4) + (t.endsWith("AAAA") ? "BBBB" : "AAAA"); // invalidates the signature only
   renderTools();
+  $("#token .msg")?.remove();
   $("#token").append(el("div", { className: "msg warn", textContent: "Signature altered. The server should now reject every call with 401." }));
 };
 
@@ -377,7 +422,7 @@ function renderTools() {
     const inputs = t.args.map((a) => {
       const field = a.type === "select"
         ? el("select", {}, a.options.map((o) => el("option", { value: o, textContent: o || "(any)" })))
-        : el("input", { type: "number", min: 1 });
+        : el("input", { type: "number", min: 1, step: 1, max: a.key === "limit" ? 500 : undefined });
       if (a.value !== undefined) field.value = a.value;
       field.dataset.key = a.key;
       return el("label", { textContent: a.label }, field);
@@ -400,9 +445,11 @@ function renderTools() {
         args[f.dataset.key] = f.type === "number" ? Number(f.value) : f.value;
       });
       run.disabled = true;
+      run.textContent = "Running…";
+      $("#result").replaceChildren(el("div", { className: "loading", textContent: `Calling ${t.name}…` }));
       try { showResult(t.name, args, await rpc(state.token, t.name, args)); }
       catch (e) { showError(`Request failed: ${e.message}`); }
-      finally { run.disabled = false; }
+      finally { run.disabled = false; run.textContent = "Run"; }
     };
     return card;
   }));
@@ -475,6 +522,7 @@ async function runDemo() {
   $("#demo-card").hidden = false;
   $("#demo-summary").textContent = "running…";
   $("#demo-summary").className = "badge";
+  btn.textContent = "Running…";
   let viewer, admin;
 
   const steps = [
@@ -529,6 +577,7 @@ async function runDemo() {
   $("#demo-summary").textContent = `${passed}/${steps.length} passed`;
   $("#demo-summary").className = `badge ${all ? "ok" : "bad"}`;
   btn.disabled = false;
+  btn.textContent = "▶ Run guided demo";
   if (admin) setToken(admin);
 }
 $("#run-demo").onclick = runDemo;
